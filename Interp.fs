@@ -274,6 +274,19 @@ let rec exec stmt (locEnv: locEnv) (gloEnv: gloEnv) (store: store) : store =
 
     | Return _ -> failwith "return not implemented" // 解释器没有实现 return
 
+    | For (e1, e2, e3, body) ->
+        let (v, store1) = eval e1 locEnv gloEnv store
+
+        let rec loop store1 =
+            let (v, store2) = eval e2 locEnv gloEnv store1
+
+            if v <> 0 then
+                loop (snd (eval e3 locEnv gloEnv (exec body locEnv gloEnv store2)))
+            else
+                store2
+
+        loop store1
+
 and stmtordec stmtordec locEnv gloEnv store =
     match stmtordec with
     | Stmt stmt -> (locEnv, exec stmt locEnv gloEnv store)
@@ -283,6 +296,22 @@ and stmtordec stmtordec locEnv gloEnv store =
 
 and eval e locEnv gloEnv store : int * store =
     match e with
+    | AssignPrim (ope, acc, e) ->
+        let (loc, store1) = access acc locEnv gloEnv store
+        let tmp = getSto store1 loc
+        let (res, store2) = eval e locEnv gloEnv store1
+
+        let num =
+            match ope with
+            | "+=" -> tmp + res
+            | "-=" -> tmp - res
+            | "*=" -> tmp * res
+            | "/=" -> tmp / res
+            | "%=" -> tmp % res
+            | _ -> failwith ("unkown primitive " + ope)
+
+        (num, setSto store2 loc num)
+
     | Access acc ->
         let (loc, store1) = access acc locEnv gloEnv store
         (getSto store1 loc, store1)
