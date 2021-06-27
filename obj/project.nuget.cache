@@ -1,12 +1,19 @@
 {
   "version": 2,
-  "dgSpecHash": "4KJJJjPZm5mpGZuRVy6eAYBi1uizaUeR1licGTsFk3QPDk4jibCN/UeCiUBkKymIze2jfJzpSJWwSTqJP9uOQA==",
+  "dgSpecHash": "zCIjwTlQHQbZNRvsTM8ltBNWU99opx0qIgI2s4sn1kTuSatESJxQgtpNvA7JoLa5V+f2i9Mu7Iga0myBXECFmQ==",
   "success": true,
-  "projectFilePath": "D:\\Documents\\Git-Data\\lec_program\\interpc.fsproj",
+  "projectFilePath": "C:\\Users\\12147\\Desktop\\lec_program\\microc.fsproj",
   "expectedPackageFiles": [
-    "C:\\Users\\15700\\.nuget\\packages\\fsharp.core\\5.0.0\\fsharp.core.5.0.0.nupkg.sha512",
-    "C:\\Users\\15700\\.nuget\\packages\\fslexyacc\\10.2.0\\fslexyacc.10.2.0.nupkg.sha512",
-    "C:\\Users\\15700\\.nuget\\packages\\fslexyacc.runtime\\10.2.0\\fslexyacc.runtime.10.2.0.nupkg.sha512"
+    "C:\\Users\\12147\\.nuget\\packages\\fsharp.core\\5.0.0\\fsharp.core.5.0.0.nupkg.sha512",
+    "C:\\Users\\12147\\.nuget\\packages\\fslexyacc\\10.2.0\\fslexyacc.10.2.0.nupkg.sha512",
+    "C:\\Users\\12147\\.nuget\\packages\\fslexyacc.runtime\\10.2.0\\fslexyacc.runtime.10.2.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "读取缓存文件 C:\\Users\\12147\\Desktop\\lec_program\\obj\\project.nuget.cache 时遇到问题: Unexpected character encountered while parsing value: <. Path '', line 0, position 0."
+    }
+  ]
 }

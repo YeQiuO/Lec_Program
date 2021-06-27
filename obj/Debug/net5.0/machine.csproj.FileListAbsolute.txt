@@ -1,0 +1,16 @@
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\machine.exe
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\machine.deps.json
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\machine.runtimeconfig.json
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\machine.runtimeconfig.dev.json
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\machine.dll
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\ref\machine.dll
+C:\Users\12147\Desktop\lec_program\bin\Debug\net5.0\machine.pdb
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.csprojAssemblyReference.cache
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.AssemblyInfoInputs.cache
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.AssemblyInfo.cs
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.csproj.CoreCompileInputs.cache
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.dll
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\ref\machine.dll
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.pdb
+C:\Users\12147\Desktop\lec_program\obj\Debug\net5.0\machine.genruntimeconfig.cache

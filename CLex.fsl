@@ -22,6 +22,10 @@ let keyword s =
     | "false"   -> CSTBOOL 0
     | "if"      -> IF
     | "int"     -> INT
+    | "float" -> FLOAT //=
+    | "double" -> DOUBLE //=
+    | "long" -> LONG //=
+    | "string" -> STRING //=
     | "null"    -> NULL
     | "print"   -> PRINT
     | "println" -> PRINTLN
@@ -61,6 +65,13 @@ rule Token = parse          // 每个 规则rule 会生成为一个函数，函�
                             //  System.Int32.Parse 将 字符串转换为 int 类型
                             // 在 CPar 中  词元CSTINT 的语义值的类型是int  %token <int> CSTINT
                             //  CSTINT 需要一个整数作为参数
+  | ['0'-'9']+'.'['0'-'9']+
+                    { CSTDOUBLE (System.Double.Parse (lexemeAsString lexbuf)) }   //=
+  | ['0'-'9']+'.'['0'-'9']+['f' 'F'] 
+                    { CSTFLOAT (System.Single.Parse(let s= lexemeAsString lexbuf in s.Substring(0,s.Length-1))) }         //=
+  | ['0'-'9']+ ['l' 'L']     { CSTLONG (System.Int64.Parse (let s= lexemeAsString  lexbuf in s.Substring(0,s.Length-1))) } //=
+  | ['\'']['\000'-'\255']['\'']            
+                    { CSTCHAR (System.Char.Parse(let s = lexemeAsString lexbuf in s.Substring(1, 1))) }
 
   | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']*
                     { keyword (lexemeAsString lexbuf) } //标识符处理

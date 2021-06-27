@@ -201,19 +201,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\15700\\.nuget\\packages\\": {}
+    "C:\\Users\\12147\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\Documents\\Git-Data\\lec_program\\interpc.fsproj",
-      "projectName": "interpc",
-      "projectPath": "d:\\Documents\\Git-Data\\lec_program\\interpc.fsproj",
-      "packagesPath": "C:\\Users\\15700\\.nuget\\packages\\",
-      "outputPath": "d:\\Documents\\Git-Data\\lec_program\\obj\\",
+      "projectUniqueName": "C:\\Users\\12147\\Desktop\\lec_program\\microc.fsproj",
+      "projectName": "microc",
+      "projectPath": "C:\\Users\\12147\\Desktop\\lec_program\\microc.fsproj",
+      "packagesPath": "C:\\Users\\12147\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\12147\\Desktop\\lec_program\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\15700\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\12147\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
@@ -261,5 +261,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.201\\RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "读取缓存文件 C:\\Users\\12147\\Desktop\\lec_program\\obj\\project.nuget.cache 时遇到问题: Unexpected character encountered while parsing value: <. Path '', line 0, position 0."
+    }
+  ]
 }

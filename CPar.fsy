@@ -15,9 +15,13 @@ let nl = CstI 10 //  \n 的 ASCII 码
 %}
 
 %token <int> CSTINT CSTBOOL  // <int> 是词元的语义值类型
+%token <float32> CSTFLOAT //=
+%token <double> CSTDOUBLE //=
+%token <int64> CSTLONG //=
+%token <char> CSTCHAR //=
 %token <string> CSTSTRING NAME
 
-%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR SWITCH CASE
+%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR SWITCH CASE FLOAT DOUBLE LONG STRING
 %token PLUS MINUS TIMES DIV MOD PREINC PREDEC PLUSASSIGN MINUSASSIGN TIMESASSIGN DIVASSIGN MODASSIGN
 %token EQ NE GT LT GE LE COLON QUEST
 %token NOT SEQOR SEQAND
@@ -197,6 +201,9 @@ AtExprNotAccess:
     // AMP Access  , &x
     // (3)   
     Const                               { CstI $1             }
+  | ConstDouble                          { CstD($1)          } //=double
+  | ConstLong                       { CstL($1)          } //=long
+  | ConstChar                           { CstC($1)          } //=char
   | LPAR ExprNotAccess RPAR             { $2                  } 
   | AMP Access                          { Addr $2             } // 取地址
 ;
@@ -225,8 +232,29 @@ Const:
   | MINUS CSTINT                        { - $2     }
   | NULL                                { -1       }
 ;
-
+ConstDouble:                                              //=double
+    CSTDOUBLE                           { $1       }
+  | MINUS CSTDOUBLE                     { - $2     }
+;
+ConstFloat:                                              //=float
+    CSTFLOAT                            { $1       }
+  | MINUS CSTFLOAT                      { - $2     }
+;
+ConstLong:                                              //=long
+    CSTLONG                            { $1       }
+  | MINUS CSTLONG                      { - $2     }
+;
+ConstChar:                                              //=char
+  CSTCHAR                               { $1       }
+;
+ConstString:                                              //=string
+  CSTSTRING                             { $1       }
+;
 Type:
     INT                                 { TypI     }
+  | FLOAT                               { TypF   }   //=
+  | DOUBLE                              { TypD  }   //=
   | CHAR                                { TypC     }
+  | LONG                                { TypL    }   //=
+  | STRING                              { TypS  }   //=
 ;

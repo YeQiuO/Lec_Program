@@ -129,6 +129,7 @@ let makeGlobalEnvs (topdecs: topdec list) : VarEnv * FunEnv * instr list =
                 let (varEnv1, code1) = allocateWithMsg Glovar (typ, var) varEnv
                 let (varEnvr, funEnvr, coder) = addv decr varEnv1 funEnv
                 (varEnvr, funEnvr, code1 @ coder)
+            
             | Fundec (tyOpt, f, xs, body) -> addv decr varEnv ((f, ($"{newLabel ()}_{f}", tyOpt, xs)) :: funEnv)
 
     addv topdecs ([], 0) []
@@ -162,7 +163,8 @@ let rec cStmt stmt (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
           @ cStmt stmt1 varEnv funEnv
             @ [ GOTO labend ]
               @ [ Label labelse ]
-                @ cStmt stmt2 varEnv funEnv @ [ Label labend ]
+                @ cStmt stmt2 varEnv funEnv 
+                    @ [ Label labend ]
     | While (e, body) ->
         let labbegin = newLabel ()
         let labtest = newLabel ()
@@ -171,6 +173,23 @@ let rec cStmt stmt (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
         @ cStmt body varEnv funEnv
           @ [ Label labtest ]
             @ cExpr e varEnv funEnv @ [ IFNZRO labbegin ]
+
+    // | For (dec, e, oper, body) -> //= dec为赋值，e为条件，oper为操作， body为执行语句
+    //     let labtest = newLabel () // 把oper 和body看成一个整体,操作和上面while是一样的
+    //     let labbegin = newLabel ()
+    //     let (varEnv1, code) = cStmtOrDec dec varEnv funEnv //执行赋值语句返回更改后的变量环境, 以及code
+
+    //     code
+    //     @ [ GOTO labtest; Label labbegin ] //跳转labtest， 标记labbegin
+    //       @ cStmt body varEnv1 funEnv //执行body
+    //         @ cExpr oper varEnv1 funEnv //执行oper
+    //           @ [ INCSP -1 ]   //重要！ 给局部变量执行完存值后要释放空间，否则会取值错误
+    //             @ [ Label labtest ] //标记labtest
+    //               @ cExpr e varEnv1 funEnv // 判断条件
+    //                 @ [ IFNZRO labbegin ; //条件为真 跳到labbegin行
+    //                     INCSP(snd varEnv - snd varEnv1) //释放没必要占用的局部变量空间 
+    //                   ] 
+
     | Expr e -> cExpr e varEnv funEnv @ [ INCSP -1 ]
     | Block stmts ->
 
@@ -213,6 +232,18 @@ and cExpr (e: expr) (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
         cAccess acc varEnv funEnv
         @ cExpr e varEnv funEnv @ [ STI ]
     | CstI i -> [ CSTI i ]
+    | CstF i -> [ CSTF(System.BitConverter.ToInt32((System.BitConverter.GetBytes(float32 (i))), 0)) ] //=
+    | CstD i -> //=
+        [ CSTD(
+              System.BitConverter.ToInt32((System.BitConverter.GetBytes(i)), 4),
+              System.BitConverter.ToInt32((System.BitConverter.GetBytes(i)), 0)
+          ) ]
+    | CstL i -> //=
+        [ CSTL(
+              System.BitConverter.ToInt32((System.BitConverter.GetBytes(i)), 4),
+              System.BitConverter.ToInt32((System.BitConverter.GetBytes(i)), 0)
+          ) ]
+    | CstC i -> [ CSTC((int32) (System.BitConverter.ToInt16((System.BitConverter.GetBytes(char (i))), 0))) ] //=
     | Addr acc -> cAccess acc varEnv funEnv
     | Prim1 (ope, e1) ->
         cExpr e1 varEnv funEnv
@@ -367,22 +398,22 @@ let compileToFile program fname =
     
     // 面向 x86 的虚拟机指令 略有差异，主要是地址偏移的计算方式不同
     // 单独生成 x86 的指令
-    isX86Instr := true
-    let x86instrs = cProgram program
-    writeInstr (fname + ".insx86") x86instrs
+    // isX86Instr := true
+    // let x86instrs = cProgram program
+    // writeInstr (fname + ".insx86") x86instrs
 
-    let x86asmlist = List.map emitx86 x86instrs
-    let x86asmbody =
-        List.fold (fun asm ins -> asm + ins) "" x86asmlist
+    // let x86asmlist = List.map emitx86 x86instrs
+    // let x86asmbody =
+    //     List.fold (fun asm ins -> asm + ins) "" x86asmlist
 
-    let x86asm =
-        (x86header + beforeinit !argc + x86asmbody)
+    // let x86asm =
+    //     (x86header + beforeinit !argc + x86asmbody)
 
-    printfn $"x86 assembly saved in file:\n\t{fname}.asm"
-    File.WriteAllText(fname + ".asm", x86asm)
+    // printfn $"x86 assembly saved in file:\n\t{fname}.asm"
+    // File.WriteAllText(fname + ".asm", x86asm)
 
-    // let deinstrs = decomp bytecode
-    // printf "deinstrs: %A\n" deinstrs
+    // // let deinstrs = decomp bytecode
+    // // printf "deinstrs: %A\n" deinstrs
     intsToFile bytecode (fname + ".out")
 
     instrs
