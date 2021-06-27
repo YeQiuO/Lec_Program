@@ -1,3 +1,0 @@
-D:\Documents\Git-Data\lec_program\obj\Debug\net5.0\interpc.fsprojAssemblyReference.cache
-D:\Documents\Git-Data\lec_program\obj\Debug\net5.0\interpc.AssemblyInfoInputs.cache
-D:\Documents\Git-Data\lec_program\obj\Debug\net5.0\interpc.AssemblyInfo.fs

@@ -1,3 +1,0 @@
-int n;
-void main() {
-}
