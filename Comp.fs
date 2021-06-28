@@ -129,7 +129,10 @@ let makeGlobalEnvs (topdecs: topdec list) : VarEnv * FunEnv * instr list =
                 let (varEnv1, code1) = allocateWithMsg Glovar (typ, var) varEnv
                 let (varEnvr, funEnvr, coder) = addv decr varEnv1 funEnv
                 (varEnvr, funEnvr, code1 @ coder)
-            
+            | VardecAndAssign (typ, x, e) -> //= 返回环境
+                let (varEnv1, code1) = allocate Glovar (typ, x) varEnv
+                let (varEnvr, funEnvr, coder) = addv decr varEnv1 funEnv
+                (varEnvr, funEnvr, code1 @ coder)
             | Fundec (tyOpt, f, xs, body) -> addv decr varEnv ((f, ($"{newLabel ()}_{f}", tyOpt, xs)) :: funEnv)
 
     addv topdecs ([], 0) []
@@ -178,10 +181,62 @@ let rec cStmt stmt (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
       let labbegin = newLabel()
       let labtest  = newLabel()
 
-      cExpr e1 varEnv funEnv @ [INCSP -1]
-      @ [GOTO labtest; Label labbegin] @ cStmt body varEnv funEnv
-      @ cExpr e3 varEnv funEnv @ [INCSP -1]
-      @ [Label labtest] @ cExpr e2 varEnv funEnv @ [IFNZRO labbegin]
+      cExpr e1 varEnv funEnv 
+        @ [INCSP -1]
+            @ [GOTO labtest; Label labbegin] 
+                @ cStmt body varEnv funEnv
+                    @ cExpr e3 varEnv funEnv 
+                        @ [INCSP -1]
+                            @ [Label labtest] 
+                                @ cExpr e2 varEnv funEnv 
+                                    @ [IFNZRO labbegin]
+    | DoWhile (body, e) ->
+        let labbegin = newLabel ()
+        let labtest = newLabel ()
+
+        cStmt body varEnv funEnv
+            @[ GOTO labtest] //跳转到labtest行
+                @[Label labbegin ] //标记此行为labbegin行
+                @ cStmt body varEnv funEnv
+                @ [ Label labtest ] //标记此行为labtest行
+                @ cExpr e varEnv funEnv  //根据条件得出0或1
+                @ [ IFNZRO labbegin ] //如果条件为1 跳转到labbegin行
+    | DoUntil (body, e) ->
+        let labbegin = newLabel ()
+        let labtest = newLabel ()
+
+        cStmt body varEnv funEnv
+            @[ GOTO labtest] //跳转到labtest行
+                @[Label labbegin ] //标记此行为labbegin行
+                @ cStmt body varEnv funEnv
+                @ [ Label labtest ] //标记此行为labtest行
+                @ cExpr e varEnv funEnv  //根据条件得出0或1
+                @ [ IFZERO labbegin ] //如果条件为0 跳转到labbegin行            
+    | Switch (e, cases) ->
+        let rec everycase c =
+            match c with
+            | [] -> []
+            | Case (cond, body) :: tail ->
+                let labend = newLabel ()
+                let labfin = newLabel ()
+
+                [DUP]
+                  @ cExpr cond varEnv funEnv
+                    @ [EQ]
+                      @ [ IFZERO labend ]
+                        @ cStmt body varEnv funEnv
+                          @ [ GOTO labfin ]
+                            @ [ Label labend ]
+                              @ everycase tail
+                                @ [ Label labfin ]
+            
+
+        cExpr e varEnv funEnv 
+          @ everycase cases
+            @[INCSP -1]
+
+    
+                  
     | Expr e -> cExpr e varEnv funEnv @ [ INCSP -1 ]
     | Block stmts ->
 
@@ -204,7 +259,13 @@ and cStmtOrDec stmtOrDec (varEnv: VarEnv) (funEnv: FunEnv) : VarEnv * instr list
     match stmtOrDec with
     | Stmt stmt -> (varEnv, cStmt stmt varEnv funEnv)
     | Dec (typ, x) -> allocateWithMsg Locvar (typ, x) varEnv
+    | DecAndAssign (typ, x, e) -> //=给x赋值e
+        let (varEnv, code) = allocate Locvar (typ, x) varEnv
 
+        (varEnv,
+         code
+         @ (cExpr (Assign((AccVar x), e)) varEnv funEnv)
+           @ [ INCSP -1 ])//赋完值缩减栈
 (* Compiling micro-C expressions:
 
    * e       is the expression to compile
@@ -260,17 +321,24 @@ and cExpr (e: expr) (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
              | ">" -> [ SWAP; LT ]
              | "<=" -> [ SWAP; LT; NOT ]
              | _ -> raise (Failure "unknown primitive 2"))
-
+    | Prim3 (e, e1, e2)    -> //=e为条件
+        let labelse = newLabel ()
+        let labend = newLabel ()
+        cExpr e varEnv funEnv //取出条件的值放入栈顶
+        @ [ IFZERO labelse ] //若为0执行else
+          @ cExpr e1 varEnv funEnv //若为1执行此句 ，执行表达式e1
+            @ [ GOTO labend ]
+              @ [ Label labelse ]
+                @ cExpr e2 varEnv funEnv //若为0执行此局， 执行表达式e2 
+                  @ [ Label labend ] 
     | Prim4 (ope, e1) ->
         (match ope with
            | "I++" -> //=
-               [ CSTI 1; ADD ]
-               @ cAccess e1 varEnv funEnv
-                 @ [ SWAP; STI ;DUP; CSTI -1; ADD ]
+               cAccess e1 varEnv funEnv
+                @[ DUP;LDI;SWAP;DUP;LDI;CSTI 1; ADD;STI;INCSP -1 ]
            | "I--" -> //=
-               [ CSTI -1; ADD ]
-               @ cAccess e1 varEnv funEnv
-                 @ [ SWAP; STI ;DUP; CSTI 1; ADD ]
+               cAccess e1 varEnv funEnv 
+                @ [ DUP;LDI;SWAP;DUP;LDI;CSTI -1; ADD;STI;INCSP -1 ]
            | "++I" -> //=
             cAccess e1 varEnv funEnv
                 @[ DUP;LDI;CSTI 1; ADD;STI ]
