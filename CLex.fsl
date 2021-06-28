@@ -36,6 +36,10 @@ let keyword s =
     | "for"     -> FOR
     | "switch"  -> SWITCH
     | "case"    -> CASE
+    | "default" -> DEFAULT 
+    | "do"      -> DO 
+    | "until"   -> UNTIL
+    | "in"      -> IN
     | _         -> NAME s   // 缺省情况，是标识符的名字，如 函数名，变量名等
                             // 当所有的关键字没有匹配成功时，则当成标识符
 // 字符串转义符处理函数
@@ -65,11 +69,13 @@ rule Token = parse          // 每个 规则rule 会生成为一个函数，函�
                             //  System.Int32.Parse 将 字符串转换为 int 类型
                             // 在 CPar 中  词元CSTINT 的语义值的类型是int  %token <int> CSTINT
                             //  CSTINT 需要一个整数作为参数
-  | ['0'-'9']+'.'['0'-'9']+
-                    { CSTDOUBLE (System.Double.Parse (lexemeAsString lexbuf)) }   //=
-  | ['0'-'9']+'.'['0'-'9']+['f' 'F'] 
-                    { CSTFLOAT (System.Single.Parse(let s= lexemeAsString lexbuf in s.Substring(0,s.Length-1))) }         //=
+
+  | ['0'-'9']+'.'['0'-'9']+                 { CSTDOUBLE (System.Double.Parse (lexemeAsString lexbuf)) }   //=
+
+  | ['0'-'9']+'.'['0'-'9']+['f' 'F']           { CSTFLOAT (System.Single.Parse(let s= lexemeAsString lexbuf in s.Substring(0,s.Length-1))) }         //=
+  
   | ['0'-'9']+ ['l' 'L']     { CSTLONG (System.Int64.Parse (let s= lexemeAsString  lexbuf in s.Substring(0,s.Length-1))) } //=
+  
   | ['\'']['\000'-'\255']['\'']            
                     { CSTCHAR (System.Char.Parse(let s = lexemeAsString lexbuf in s.Substring(1, 1))) }
 
