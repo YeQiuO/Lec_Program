@@ -21,7 +21,8 @@ let nl = CstI 10 //  \n 的 ASCII 码
 %token <char> CSTCHAR //=
 %token <string> CSTSTRING NAME
 
-%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR SWITCH CASE FLOAT DOUBLE LONG STRING
+%token INT CHAR FLOAT DOUBLE LONG STRING
+%token ELSE IF NULL PRINT PRINTLN RETURN VOID WHILE FOR SWITCH CASE DEFAULT DO UNTIL IN RANGE
 %token PLUS MINUS TIMES DIV MOD PREINC PREDEC PLUSASSIGN MINUSASSIGN TIMESASSIGN DIVASSIGN MODASSIGN
 %token EQ NE GT LT GE LE COLON QUEST
 %token NOT SEQOR SEQAND
@@ -142,7 +143,10 @@ StmtM:  /* No unbalanced if-else */
   | IF LPAR Expr RPAR StmtM ELSE StmtM  { If($3, $5, $7)       }
   | WHILE LPAR Expr RPAR StmtM          { While($3, $5)        }
   | FOR LPAR Expr SEMI Expr SEMI Expr RPAR StmtM { For($3, $5, $7, $9) }
-  | SWITCH LPAR Expr RPAR LBRACE CaseList RBRACE { Switch($3, $6) }
+  | SWITCH LPAR Expr RPAR LBRACE CaseList RBRACE { Switch($3, $6) } 
+  | DO StmtM WHILE LPAR Expr RPAR SEMI  { DoWhile($2, $5)      }
+  | DO StmtM UNTIL LPAR Expr RPAR SEMI  { DoUntil($2, $5)      }
+  | FOR Access IN RANGE LPAR Expr COMMA Expr COMMA Expr RPAR StmtM {ForIn($2, $6, $8, $10, $12)}
 ;
 
 StmtU:
@@ -150,15 +154,20 @@ StmtU:
   | IF LPAR Expr RPAR Stmt              { If($3, $5, Block []) }
   | WHILE LPAR Expr RPAR StmtU          { While($3, $5)        }
   | FOR LPAR Expr SEMI Expr SEMI Expr RPAR StmtU { For($3, $5, $7, $9) }
+  | SWITCH LPAR Expr RPAR LBRACE CaseList RBRACE { Switch($3, $6) } 
+  | DO StmtM WHILE LPAR Expr RPAR SEMI  { DoWhile($2, $5)      }
+  | DO StmtM UNTIL LPAR Expr RPAR SEMI  { DoUntil($2, $5)      }
+  | FOR Access IN RANGE LPAR Expr COMMA Expr COMMA Expr RPAR StmtM {ForIn($2, $6, $8, $10, $12)}
 ;
 
 CaseList:
                                         { []                   }
   | CaseDec                             { [$1]                 }
   | CaseDec CaseList                    { $1 :: $2             }
+  | DEFAULT COLON StmtM                 { [Default($3)]        }
 
 CaseDec:
-    CASE Expr COLON Stmt                { ($2,$4)              }
+    CASE Expr COLON Stmt                { Case($2,$4)          }
     
 Expr: 
     Access                              { Access $1           } //取$1的右值
@@ -201,9 +210,10 @@ AtExprNotAccess:
     // AMP Access  , &x
     // (3)   
     Const                               { CstI $1             }
-  | ConstDouble                          { CstD($1)          } //=double
-  | ConstLong                       { CstL($1)          } //=long
-  | ConstChar                           { CstC($1)          } //=char
+  | ConstFloat                          { CstF $1          }
+  | ConstDouble                          { CstD $1          } //=double
+  | ConstLong                            { CstL $1           } //=long
+  | ConstChar                           { CstC $1           } //=char
   | LPAR ExprNotAccess RPAR             { $2                  } 
   | AMP Access                          { Addr $2             } // 取地址
 ;
@@ -232,24 +242,30 @@ Const:
   | MINUS CSTINT                        { - $2     }
   | NULL                                { -1       }
 ;
+
 ConstDouble:                                              //=double
     CSTDOUBLE                           { $1       }
   | MINUS CSTDOUBLE                     { - $2     }
 ;
+
 ConstFloat:                                              //=float
     CSTFLOAT                            { $1       }
   | MINUS CSTFLOAT                      { - $2     }
 ;
+
 ConstLong:                                              //=long
     CSTLONG                            { $1       }
   | MINUS CSTLONG                      { - $2     }
 ;
+
 ConstChar:                                              //=char
   CSTCHAR                               { $1       }
 ;
+
 ConstString:                                              //=string
   CSTSTRING                             { $1       }
 ;
+
 Type:
     INT                                 { TypI     }
   | FLOAT                               { TypF   }   //=

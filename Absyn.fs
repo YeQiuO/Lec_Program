@@ -46,8 +46,13 @@ and access =                         //左值，存储的位置
   | AccIndex of access * expr        (* Array indexing         a[e] *)
                                                                    
 and stmt =                                                         
-  | Switch of expr *(expr * stmt) list
+  | Switch of expr * stmt list
+  | Case of expr * stmt
+  | Default of stmt 
   | For of expr * expr * expr * stmt 
+  | DoUntil of stmt * expr
+  | DoWhile of stmt * expr
+  | ForIn of access * expr * expr * expr * stmt 
   | If of expr * stmt * stmt         (* Conditional                 *)
   | While of expr * stmt             (* While loop                  *)
   | Expr of expr                     (* Expression statement   e;   *)
