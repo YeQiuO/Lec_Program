@@ -174,22 +174,14 @@ let rec cStmt stmt (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
           @ [ Label labtest ]
             @ cExpr e varEnv funEnv @ [ IFNZRO labbegin ]
 
-    // | For (dec, e, oper, body) -> //= dec为赋值，e为条件，oper为操作， body为执行语句
-    //     let labtest = newLabel () // 把oper 和body看成一个整体,操作和上面while是一样的
-    //     let labbegin = newLabel ()
-    //     let (varEnv1, code) = cStmtOrDec dec varEnv funEnv //执行赋值语句返回更改后的变量环境, 以及code
+    | For(e1, e2, e3, body) ->         
+      let labbegin = newLabel()
+      let labtest  = newLabel()
 
-    //     code
-    //     @ [ GOTO labtest; Label labbegin ] //跳转labtest， 标记labbegin
-    //       @ cStmt body varEnv1 funEnv //执行body
-    //         @ cExpr oper varEnv1 funEnv //执行oper
-    //           @ [ INCSP -1 ]   //重要！ 给局部变量执行完存值后要释放空间，否则会取值错误
-    //             @ [ Label labtest ] //标记labtest
-    //               @ cExpr e varEnv1 funEnv // 判断条件
-    //                 @ [ IFNZRO labbegin ; //条件为真 跳到labbegin行
-    //                     INCSP(snd varEnv - snd varEnv1) //释放没必要占用的局部变量空间 
-    //                   ] 
-
+      cExpr e1 varEnv funEnv @ [INCSP -1]
+      @ [GOTO labtest; Label labbegin] @ cStmt body varEnv funEnv
+      @ cExpr e3 varEnv funEnv @ [INCSP -1]
+      @ [Label labtest] @ cExpr e2 varEnv funEnv @ [IFNZRO labbegin]
     | Expr e -> cExpr e varEnv funEnv @ [ INCSP -1 ]
     | Block stmts ->
 
@@ -244,7 +236,7 @@ and cExpr (e: expr) (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
               System.BitConverter.ToInt32((System.BitConverter.GetBytes(i)), 0)
           ) ]
     | CstC i -> [ CSTC((int32) (System.BitConverter.ToInt16((System.BitConverter.GetBytes(char (i))), 0))) ] //=
-    | Addr acc -> cAccess acc varEnv funEnv
+    | Addr acc -> cAccess acc varEnv funEnv     
     | Prim1 (ope, e1) ->
         cExpr e1 varEnv funEnv
         @ (match ope with
@@ -268,6 +260,35 @@ and cExpr (e: expr) (varEnv: VarEnv) (funEnv: FunEnv) : instr list =
              | ">" -> [ SWAP; LT ]
              | "<=" -> [ SWAP; LT; NOT ]
              | _ -> raise (Failure "unknown primitive 2"))
+
+    | Prim4 (ope, e1) ->
+        (match ope with
+           | "I++" -> //=
+               [ CSTI 1; ADD ]
+               @ cAccess e1 varEnv funEnv
+                 @ [ SWAP; STI ;DUP; CSTI -1; ADD ]
+           | "I--" -> //=
+               [ CSTI -1; ADD ]
+               @ cAccess e1 varEnv funEnv
+                 @ [ SWAP; STI ;DUP; CSTI 1; ADD ]
+           | "++I" -> //=
+            cAccess e1 varEnv funEnv
+                @[ DUP;LDI;CSTI 1; ADD;STI ]
+           | "--I" -> //=   
+            cAccess (e1) varEnv funEnv 
+                @ [ DUP;LDI;CSTI -1; ADD;STI ]
+           | _ -> raise (Failure "unknown primitive 4"))
+
+    | AssignPrim (ope, e1, e2) ->
+        cAccess e1 varEnv funEnv
+          @[DUP;LDI]
+             @ cExpr e2 varEnv funEnv
+                @ (match ope with
+                    | "+=" -> [ ADD;STI ]
+                    | "-=" -> [ SUB;STI ]
+                    | "*=" -> [ MUL;STI ]
+                    | "/=" -> [ DIV;STI ]
+                    | _ -> raise (Failure "unknown AssignPrim"))
     | Andalso (e1, e2) ->
         let labend = newLabel ()
         let labfalse = newLabel ()
