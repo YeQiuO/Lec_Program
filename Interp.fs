@@ -44,6 +44,8 @@ type memData =
     | CHAR of char
     | POINTER of int
     | FLOAT of float
+    | DOUBLE of double
+    | STRING of string
 
     member this.pointer =
         match this with
@@ -56,19 +58,39 @@ type memData =
         | INT i -> i
         | POINTER i -> i
         | FLOAT i -> int i
+        | DOUBLE i -> int i
         | _ -> failwith ("wrong int")
 
     member this.char =
         match this with
         | CHAR i -> i
-        | INT i -> char i
+        // | INT i -> char i
         | _ -> failwith ("wrong char")
 
     member this.float =
         match this with
         | FLOAT i -> i
         | INT i -> float i
+        | DOUBLE i -> float i
+        | STRING i -> float i
         | _ -> failwith ("wrong float")
+
+    member this.double = 
+        match this with
+        | DOUBLE i -> i
+        | INT i -> double i
+        | _ -> failwith ("wrong double")
+
+    member this.string = 
+        match this with
+        | STRING i -> i
+        | INT i -> string i
+        | CHAR i -> string i
+        | POINTER i -> string i
+        | FLOAT i -> string i
+        | DOUBLE i -> string i
+        // | _ -> failwith ("wrong string")
+
 
 //环境查找函数
 //在环境 env上查找名称为 x 的值
@@ -230,6 +252,8 @@ let rec allocate (typ, x, v: memData option) (env0, nextloc) sto0 : locEnv * sto
         | TypI -> INT(0)
         | TypC -> CHAR(' ')
         | TypF -> FLOAT(0.0)
+        | TypD -> DOUBLE(0.0)
+        | TypS -> STRING("")
         | TypP i -> POINTER(-1)
         | _ -> failwith ("cant init variable")
 
@@ -396,6 +420,7 @@ and stmtordec stmtordec locEnv gloEnv store =
     match stmtordec with
     | Stmt stmt -> (locEnv, exec stmt locEnv gloEnv store)
     | Dec (typ, x) -> allocate (typ, x, None) locEnv store
+    | DecAndAssign (typ, name, expr) -> allocate (typ, name, Some(fst (eval expr locEnv gloEnv store))) locEnv store
 
 (* Evaluating micro-C expressions *)
 
@@ -419,9 +444,9 @@ and eval e locEnv gloEnv store : memData * store =
         let (res, store2) = eval e locEnv gloEnv store1
         (res, setSto store2 loc.pointer res)
     | CstI i -> (INT(i), store)
-    // | CstB i -> (BOOL(i), store)
     | CstF i -> (FLOAT(i), store)
-    // | CstS i -> (STRING(i), store)
+    | CstD i -> (DOUBLE(i), store)
+    | CstS i -> (STRING(i), store)
     | Addr acc -> access acc locEnv gloEnv store
     | AssignPrim(ope, acc, e) ->
         let (loc,store1) = access acc locEnv gloEnv store
@@ -463,7 +488,10 @@ and eval e locEnv gloEnv store : memData * store =
             match ope with
             | "!" -> if i1.int = 0 then INT(1) else INT(0)
             | "printi" ->
-                if i1.float = double(i1.int) then 
+                if i1 = STRING(i1.string) then
+                    printf "%s " i1.string
+                    i1 
+                else if i1.float = float(i1.int) then 
                     printf "%d " i1.int 
                     i1 
                 else 
@@ -485,23 +513,30 @@ and eval e locEnv gloEnv store : memData * store =
                 match (i1) with
                 | INT i -> INT(i1.int * i2.int)
                 | FLOAT i -> FLOAT(i1.float * i2.float)
+                | DOUBLE i -> DOUBLE(i1.double * i2.double)
                 | _ -> failwith ("wrong calu")
             | "+" ->
                 match (i1, i2) with
                 | (INT i1, INT i2) -> INT(i1 + i2)
-                | (FLOAT i1, _) -> FLOAT(i1 + i2.float)
-                | (_, FLOAT i2) -> FLOAT(i1.float + i2)
+                | (FLOAT i1, _) -> FLOAT(i1 + i2.double)
+                | (_, FLOAT i2) -> FLOAT(i1.double + i2)
+                | (DOUBLE i1, _) -> DOUBLE(i1 + i2.double)
+                | (_, DOUBLE i2) -> DOUBLE(i1.double + i2)
+                | (STRING i1, STRING i2) -> STRING(i1 + i2)
                 | _ -> failwith ("wrong calu")
             | "-" ->
                 match (i1, i2) with
                 | (INT i1, INT i2) -> INT(i1 - i2)
                 | (FLOAT i1, _) -> FLOAT(i1 - i2.float)
                 | (_, FLOAT i2) -> FLOAT(i1.float - i2)
+                | (DOUBLE i1, _) -> DOUBLE(i1 - i2.double)
+                | (_, DOUBLE i2) -> DOUBLE(i1.double - i2)
                 | _ -> failwith ("wrong calu")
             | "/" ->
                 match i1 with
                 | INT i -> INT(i1.int / i2.int)
                 | FLOAT i -> FLOAT(i1.float / i2.float)
+                | DOUBLE i -> DOUBLE(i1.double / i2.double)
                 | _ -> failwith ("wrong calu")
             | "%" -> INT(i1.int % i2.int)
             | "==" -> if i1 = i2 then INT(1) else INT(0)
@@ -516,7 +551,7 @@ and eval e locEnv gloEnv store : memData * store =
     | Prim3(e1, e2, e3) ->
         let (v, store1) = eval e1 locEnv gloEnv store
         if v <> INT(0) then eval e2 locEnv gloEnv store1
-            else eval e3 locEnv gloEnv store1
+        else eval e3 locEnv gloEnv store1
     | Andalso (e1, e2) ->
         let (i1, store1) as res = eval e1 locEnv gloEnv store
 
