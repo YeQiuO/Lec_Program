@@ -165,12 +165,13 @@ StmtU:
 ;
 
 CaseList:
+                                        { [] }
   | CaseDec                             { [$1]                 }
   | CaseDec CaseList                    { $1 :: $2             }
-  | DEFAULT COLON StmtM                 { [Default($3)]        }
+  | DEFAULT COLON Stmt                  { [Default($3)]        }
 
 CaseDec:
-    CASE Expr COLON StmtM                { Case($2,$4)          }
+    CASE Expr COLON Stmt                { Case($2,$4)          }
     
 Expr: 
     Access                              { Access $1           } //取$1的右值

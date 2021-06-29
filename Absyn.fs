@@ -27,7 +27,10 @@ type typ =
 and expr =                           // 表达式，右值                                                
   // | PreInc of access                
   // | PreDec of access
+<<<<<<< HEAD
   | Prim4 of string * access
+=======
+>>>>>>> main
   | AssignPrim of string * access * expr
   | Access of access                 (* x    or  *p    or  a[e]     *) //访问左值（右值）
   | Assign of access * expr          (* x=e  or  *p=e  or  a[e]=e   *)

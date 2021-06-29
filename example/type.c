@@ -9,7 +9,7 @@ void main() {
     char c = 's';
     print(c);
 
-    double d = 3.6652243999251;
+    double d = 2.55;
     print(d);
 
 }

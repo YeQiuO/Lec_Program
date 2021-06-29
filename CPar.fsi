@@ -35,10 +35,8 @@ type token =
   | TIMESASSIGN
   | DIVASSIGN
   | MODASSIGN
-  | CHAR
   | ELSE
   | IF
-  | INT
   | NULL
   | PRINT
   | PRINTLN
@@ -48,10 +46,18 @@ type token =
   | FOR
   | SWITCH
   | CASE
+  | DEFAULT
+  | DO
+  | UNTIL
+  | IN
+  | RANGE
+  | INT
+  | CHAR
   | FLOAT
   | DOUBLE
   | LONG
   | STRING
+  | BOOLEAN
   | CSTSTRING of (string)
   | NAME of (string)
   | CSTCHAR of (char)
@@ -95,10 +101,8 @@ type tokenId =
     | TOKEN_TIMESASSIGN
     | TOKEN_DIVASSIGN
     | TOKEN_MODASSIGN
-    | TOKEN_CHAR
     | TOKEN_ELSE
     | TOKEN_IF
-    | TOKEN_INT
     | TOKEN_NULL
     | TOKEN_PRINT
     | TOKEN_PRINTLN
@@ -108,10 +112,18 @@ type tokenId =
     | TOKEN_FOR
     | TOKEN_SWITCH
     | TOKEN_CASE
+    | TOKEN_DEFAULT
+    | TOKEN_DO
+    | TOKEN_UNTIL
+    | TOKEN_IN
+    | TOKEN_RANGE
+    | TOKEN_INT
+    | TOKEN_CHAR
     | TOKEN_FLOAT
     | TOKEN_DOUBLE
     | TOKEN_LONG
     | TOKEN_STRING
+    | TOKEN_BOOLEAN
     | TOKEN_CSTSTRING
     | TOKEN_NAME
     | TOKEN_CSTCHAR
@@ -128,6 +140,7 @@ type nonTerminalId =
     | NONTERM_Topdecs
     | NONTERM_Topdec
     | NONTERM_Vardec
+    | NONTERM_VardecAndAssign
     | NONTERM_Vardesc
     | NONTERM_Fundec
     | NONTERM_Paramdecs
