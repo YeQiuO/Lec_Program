@@ -26,6 +26,7 @@ let keyword s =
     | "double" -> DOUBLE //=
     | "long" -> LONG //=
     | "string" -> STRING //=
+    | "boolean" -> BOOLEAN //=
     | "null"    -> NULL
     | "print"   -> PRINT
     | "println" -> PRINTLN
