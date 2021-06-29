@@ -29,10 +29,4 @@ public class Instruction {
     public final static int CSTD = 27;
     public final static int CSTL = 28;
     public final static int CSTC = 29;
-    // public final static int THROW = 28;
-    // public final static int PUSHHR = 29;
-    // public final static int POPHR = 30;
-    // public final static int CSTD = 31;
-    // public final static int CSTS = 32;
-    // public final static int CSTL = 33;
 }

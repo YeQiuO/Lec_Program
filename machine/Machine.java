@@ -501,24 +501,61 @@ public class Machine
             break;
             case "/":
             {
-                if (Float.compare(Float.parseFloat(String.valueOf(rhs)), 0.0f) == 0)
-                {
-                    throw new OperatorError("OpeatorError: Divisor can't not be zero");
-                }
+                // if(flag==Instruction.CSTF){
+                //     float ff=((FloatType)rhs).getValue();
+                //     if(ff-0<0.0001)
+                //     {
+                //          throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                //     }
+                // }
+                // if(flag==Instruction.CSTD){
+                //     double ff=((DoubleType)rhs).getValue();
+                //     if(ff-0<0.0001)
+                //     {
+                //          throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                //     }
+                // }
+                // if(flag==Instruction.CSTF){
+                //     long ff=((LongType)rhs).getValue();
+                //     if(ff-0<0.0001)
+                //     {
+                //          throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                //     }
+                // }
                 if (flag == Instruction.CSTF)
                 {
+                    float ff=((FloatType)rhs).getValue();
+                    if(ff-0<0.0001)
+                    {
+                         throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                    }
                     result = new FloatType(((FloatType) lhs).getValue() / ((FloatType) rhs).getValue());
                 }
                 else if (flag == Instruction.CSTD)
                 {
+                    double ff=((DoubleType)rhs).getValue();
+                    if(ff-0<0.0001)
+                    {
+                         throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                    }
                     result = new DoubleType(((DoubleType) lhs).getValue() / ((DoubleType) rhs).getValue());
                 }
                 else if (flag == Instruction.CSTI)
                 {
+                    int ff=((IntType)rhs).getValue();
+                    if(ff-0<0.0001)
+                    {
+                         throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                    }
                     result = new IntType(((IntType) lhs).getValue() / ((IntType) rhs).getValue());
                 }
                 else
                 {
+                    long ff=((LongType)rhs).getValue();
+                    if(ff-0<0.0001)
+                    {
+                         throw new OperatorError("OpeatorError: Divisor can't not be zero");
+                    }
                     result = new LongType(((LongType) lhs).getValue() / ((LongType) rhs).getValue());
                 }
             }
