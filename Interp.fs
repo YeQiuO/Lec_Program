@@ -64,7 +64,7 @@ type memData =
     member this.char =
         match this with
         | CHAR i -> i
-        // | INT i -> char i
+        | INT i -> char i
         | _ -> failwith ("wrong char")
 
     member this.float =
@@ -426,16 +426,57 @@ and stmtordec stmtordec locEnv gloEnv store =
 
 and eval e locEnv gloEnv store : memData * store =
     match e with
-    | PreInc acc -> 
+    // | PreInc acc -> 
+    //     let (loc, store1) = access acc locEnv gloEnv store
+    //     let tmp = getSto store1 loc.pointer
+    //     let var = INT(tmp.int + 1)
+    //     (INT(tmp.int + 1), setSto store1 loc.pointer var)
+    // | PreDec acc -> 
+    //     let (loc, store1) = access acc locEnv gloEnv store
+    //     let tmp = getSto store1 loc.pointer
+    //     let var = INT(tmp.int - 1)
+    //     (INT(tmp.int - 1), setSto store1 loc.pointer var)
+    | Prim4(ope, acc) -> 
         let (loc, store1) = access acc locEnv gloEnv store
-        let tmp = getSto store1 loc.pointer
-        let var = INT(tmp.int + 1)
-        (INT(tmp.int + 1), setSto store1 loc.pointer var)
-    | PreDec acc -> 
-        let (loc, store1) = access acc locEnv gloEnv store
-        let tmp = getSto store1 loc.pointer
-        let var = INT(tmp.int - 1)
-        (INT(tmp.int - 1), setSto store1 loc.pointer var)
+        let (i1) = getSto store1 loc.pointer
+        match ope with
+            | "I++" -> 
+                match (i1) with
+                | INT i -> 
+                    let res = INT(i1.int + 1)
+                    (i1, setSto store1 loc.pointer res)
+                | FLOAT i -> 
+                    let res = FLOAT(i1.float + 1.0)
+                    (i1, setSto store1 loc.pointer res)
+                | _ -> failwith ("wrong calu")
+            | "I--" -> 
+                match (i1) with
+                | INT i -> 
+                    let res = INT(i1.int - 1)
+                    (i1, setSto store1 loc.pointer res)
+                | FLOAT i -> 
+                    let res = FLOAT(i1.float - 1.0)
+                    (i1, setSto store1 loc.pointer res)
+                | _ -> failwith ("wrong calu")
+            | "++I"-> 
+                match (i1) with
+                | INT i -> 
+                    let res = INT(i1.int + 1)
+                    (res, setSto store1 loc.pointer res)
+                | FLOAT i -> 
+                    let res = FLOAT(i1.float + 1.0)
+                    (res, setSto store1 loc.pointer res)
+                | _ -> failwith ("wrong calu")
+            | "--I"-> 
+                match (i1) with
+                | INT i -> 
+                    let res = INT(i1.int - 1)
+                    (res, setSto store1 loc.pointer res)
+                | FLOAT i -> 
+                    let res = FLOAT(i1.float - 1.0)
+                    (res, setSto store1 loc.pointer res)
+                | _ -> failwith ("wrong calu")
+            | _ -> failwith ("unknown primitive " + ope)
     | Access acc ->
         let (loc, store1) = access acc locEnv gloEnv store
         (getSto store1 loc.pointer, store1)

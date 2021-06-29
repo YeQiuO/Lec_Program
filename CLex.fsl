@@ -22,10 +22,6 @@ let keyword s =
     | "false"   -> CSTBOOL 0
     | "if"      -> IF
     | "int"     -> INT
-    | "float" -> FLOAT //=
-    | "double" -> DOUBLE //=
-    | "long" -> LONG //=
-    | "string" -> STRING //=
     | "null"    -> NULL
     | "print"   -> PRINT
     | "println" -> PRINTLN
@@ -36,11 +32,14 @@ let keyword s =
     | "for"     -> FOR
     | "switch"  -> SWITCH
     | "case"    -> CASE
-    | "range"   -> RANGE
     | "default" -> DEFAULT 
     | "do"      -> DO 
     | "until"   -> UNTIL
     | "in"      -> IN
+    | "range"   -> RANGE
+    | "float"   -> FLOAT
+    | "double" -> DOUBLE 
+    | "string"  -> STRING
     | _         -> NAME s   // 缺省情况，是标识符的名字，如 函数名，变量名等
                             // 当所有的关键字没有匹配成功时，则当成标识符
 // 字符串转义符处理函数
@@ -73,13 +72,8 @@ rule Token = parse          // 每个 规则rule 会生成为一个函数，函�
 
   | ['0'-'9']+'.'['0'-'9']+                 { CSTDOUBLE (System.Double.Parse (lexemeAsString lexbuf)) }   //=
 
-  | ['0'-'9']+'.'['0'-'9']+['f' 'F']           { CSTFLOAT (System.Single.Parse(let s= lexemeAsString lexbuf in s.Substring(0,s.Length-1))) }         //=
+  | ['0'-'9']+'.'['0'-'9']+      { CSTFLOAT (float (lexemeAsString lexbuf)) }
   
-  | ['0'-'9']+ ['l' 'L']     { CSTLONG (System.Int64.Parse (let s= lexemeAsString  lexbuf in s.Substring(0,s.Length-1))) } //=
-  
-  | ['\'']['\000'-'\255']['\'']            
-                    { CSTCHAR (System.Char.Parse(let s = lexemeAsString lexbuf in s.Substring(1, 1))) }
-
   | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']*
                     { keyword (lexemeAsString lexbuf) } //标识符处理
                                                        //先查是否是关键字，是则返回对应关键字的Token
