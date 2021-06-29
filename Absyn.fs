@@ -13,6 +13,11 @@ module Absyn
 type typ =
   | TypI                             (* Type int                    *)
   | TypC                             (* Type char                   *)
+  | TypF (*float32*)
+  | TypD (*double*)
+  | TypL (*long*)
+  | TypS (*string*)
+  | TypB (*boolean*)
   | TypA of typ * int option         (* Array type                  *)
   | TypP of typ                      (* Pointer type                *)
   | TypF
@@ -34,6 +39,7 @@ and expr =                           // 表达式，右值
   | Prim1 of string * expr           (* Unary primitive operator    *)
   | Prim2 of string * expr * expr    (* Binary primitive operator   *)
   | Prim3 of expr * expr * expr
+  | Prim4 of string * access     (* i++ i-- ++i --i   *)
   | Andalso of expr * expr           (* Sequential and              *)
   | Orelse of expr * expr            (* Sequential or               *)
   | Call of string * expr list       (* Function call f(...)        *)
@@ -60,6 +66,7 @@ and stmt =
 
 and stmtordec =                                                    
   | Dec of typ * string              (* Local variable declaration  *)
+  | DecAndAssign of typ * string * expr //=声明并赋值
   | Stmt of stmt                     (* A statement                 *)
   | DecAndAssign of typ * string * expr
 
@@ -67,6 +74,7 @@ and stmtordec =
 and topdec = 
   | Fundec of typ option * string * (typ * string) list * stmt
   | Vardec of typ * string
+  | VardecAndAssign of typ * string * expr //=声明并赋值
 
 // 程序是顶级声明的列表
 and program = 
