@@ -1,0 +1,63 @@
+dotnet build -v n interpc.fsproj
+dotnet run -p interpc.fsproj .\ex_all.c
+
+Clex.fsl 关键字定义
+
+Absyn.fs 实现逻辑定义
+
+CPar.fsy 语句匹配
+
+Interp.fs 实现具体逻辑函数
+
+locEnv: 本地变量环境（变量名->地址）
+gloEnv: 全局环境
+store: 地址->值
+
+eval e locEnv gloEnv store
+e: 表达式
+输入: 表达式 expr
+输出: 表达式 expr的值(int类型)，和被修改的store
+
+exec stmt locEnv gloEnv store
+stmt: 可执行语句
+输入：执行语句stmt
+输出：更改后的存储store
+
+access acc locEnv gloEnv store
+acc: 赋值语句
+输入: 待求值的access类型（变量x，指针*p，数组a[4]）
+输出: access 的左值（地址），store
+
+Vardec:
+类型构造函数
+
+解释器实现：
+for 
+switch case default
+do while 
+do until
+for in range
+三目运算
++= -= \= *= %=
+++ --
+float 支持（输出、加减乘除、+=-=/=）
+变量初始化
+double 支持（输出、加减乘除）
+string 支持（输出、相加）
+
+
+待定：
+变量初始化
+
+遗留问题：
+Stmt 区分 StmtM StmtU 的目的；
+compose1 函数 取出 类型构造子 g，用类型复合机制构造类型，实现原理 let compose1 f (g, s) = ((fun x -> g(f(x))), s)；
+
+6.27 21:06 24:40 基本完工
+未完成ForIn 先开始memData
+https://docs.microsoft.com/zh-cn/dotnet/fsharp/language-reference/discriminated-unions#members
+
+后台特殊处：
+整型float输出无小数，非整型自动保留两位小数
++= -= 只适用于int float
+++ -- 只适用于int

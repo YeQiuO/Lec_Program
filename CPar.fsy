@@ -193,10 +193,10 @@ ExprNotAccess:
   | NOT Expr                            { Prim1("!", $2)      }
   | PRINT Expr                          { Prim1("printi", $2) }
   | PRINTLN                             { Prim1("printc", nl) }
-  | Access PREINC                         { Prim4("I++", $1)     } //=i++
-  | Access PREDEC                         { Prim4("I--", $1)     } //=i--
-  | PREINC Access                         { Prim4("++I", $2)     } //=++i
-  | PREDEC Access                         { Prim4("--I", $2)     } //=--i
+  | Access PREINC                       { Prim4("I++", $1)     } //=i++
+  | Access PREDEC                       { Prim4("I--", $1)     } //=i--
+  | PREINC Access                       { Prim4("++I", $2)     } //=++i
+  | PREDEC Access                       { Prim4("--I", $2)     } //=--i
   | Expr PLUS  Expr                     { Prim2("+",  $1, $3) }
   | Expr MINUS Expr                     { Prim2("-",  $1, $3) }
   | Expr TIMES Expr                     { Prim2("*",  $1, $3) }
@@ -218,10 +218,10 @@ AtExprNotAccess:
     // AMP Access  , &x
     // (3)   
     Const                               { CstI $1             }
-  | ConstFloat                          { CstF $1          }
-  | ConstDouble                          { CstD $1          } //=double
-  | ConstLong                            { CstL $1           } //=long
-  | ConstChar                           { CstC $1           } //=char
+  | ConstFloat                          { CstF $1             }
+  | ConstDouble                         { CstD $1             } //=double
+  | ConstLong                           { CstL $1             } //=long
+  | ConstChar                           { CstC $1             } //=char
   | LPAR ExprNotAccess RPAR             { $2                  } 
   | AMP Access                          { Addr $2             } // 取地址
 ;
@@ -268,6 +268,6 @@ ConstString:                                              //=string
 Type:
     INT                                 { TypI     }
   | CHAR                                { TypC     }
-  | LONG                                { TypL    }   //=
-  | STRING                              { TypS  }   //=
+  | LONG                                { TypL     }   //=
+  | STRING                              { TypS     }   //=
 ;
