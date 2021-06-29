@@ -1,1 +1,0 @@
-lec_program
